@@ -106,10 +106,30 @@ Tip: Load one file (as a sample) and:
 Only then (when everything works) turn the code into a function and use map_df() to apply it to all the files.
 See placeholder code here for help.
 
-```{r}
-library(tidyverse)
+```{r loading one pitch data file}
+Study1D0S101T1_f0 <- read.delim("Pitch/Study1D0S101T1_f0.txt")
+# it was not read correctly, see: delim
 
-read_pitch <- function(filename) {
+#what columns do we want?
+
+
+
+library(tidyverse)
+# making a list of the filenames from the folder "Pitch"
+filenames_list <- list.files(path = "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch", pattern = "*.txt")
+path <- "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch/"
+DATA <- NULL    
+
+for(i in 1:length(filenames_list)){
+    d <- read.delim(paste0(path, filenames_list[i]))
+    d$ <- 
+    DATA <- rbind(DATA, d)
+}
+    
+
+
+# this is the placehoolder code:
+#read_pitch <- function(filename) {
     # load data
     
     # parse filename to extract study, diagnosis, subject and trial
@@ -117,18 +137,17 @@ read_pitch <- function(filename) {
     # extract pitch descriptors (mean, sd, iqr, etc)
     
     # combine all this data in one dataset
-    return(data)
-}
+#    return(data)
+#}
 
 # test it on just one file while writing the function
-test_data = read_pitch("Pitch/a_file_to_test.txt")
+#test_data = read_pitch("Pitch/a_file_to_test.txt")
 
 # when you've created a function that works, you can
-pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
-    purrr::map_df(read_pitch)
+#pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
+#    purrr::map_df(read_pitch)
 
-write_csv(pitch_data, ...)
-
+#write_csv(pitch_data, ...)
 ```
 
 
@@ -175,7 +194,7 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 
 - Bonus points: cross-validate the models and report the betas and standard errors from all rounds to get an idea of how robust the estimates are. 
 
-```{r Part 1.2 2) Describe the acoustic profile of a schizophrenic voice: which features are different?}
+```{r Part 1.2 Describe the acoustic profile of a schizophrenic voice: which features are different?}
 
 ```
 
@@ -199,7 +218,9 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 
 # Part 2: Can we diagnose schizophrenia from voice only?
 ```{r Part 2.1 Discuss whether you should you run the analysis on all studies and both languages at the same time}
-
+# my idea is that we should compare the SCZ group with the control group within the same language.
+# the reason for this is that there may be cultural differences. In some languages the differences could be bigger or smaller, 
+# or the features that differ are different from those in another language maybe.
 ```
 
 
