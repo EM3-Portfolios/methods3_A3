@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ## Assignment 3 - Part 1 - Assessing voice in schizophrenia
 
 Individuals with schizophrenia (SCZ) tend to present voice atypicalities. Their tone is described as "inappropriate" voice, sometimes monotone, sometimes croaky. This is important for two reasons. First, voice could constitute a direct window into cognitive, emotional and social components of the disorder, thus providing a cheap and relatively non-invasive way to support the diagnostic and assessment process (via automated analyses). Second, voice atypicalities play an important role in the social impairment experienced by individuals with SCZ, and are thought to generate negative social judgments (of unengaged, slow, unpleasant interlocutors), which can cascade in more negative and less frequent social interactions.
@@ -22,6 +23,7 @@ N.B. For the fun of it, I threw in data from 3 different languages: 1) Danish (s
 In this assignment (A3), you will have to discuss a few important questions (given the data you have). More details below.
 
 *Part 1 - Can we find a difference in acoustic features in schizophrenia?*
+
 1) Describe your sample 
 number of studies, number of participants, age, gender, clinical and cognitive features of the two groups. Furthemore, critically assess whether the groups (schizophrenia and controls) are balanced. N.B. you need to take studies into account.
 
@@ -40,6 +42,7 @@ which fixed and random effects should be included, given your dataset? E.g. what
 Your report should look like a methods paragraph followed by a result paragraph in a typical article (think the Communication and Cognition paper)
 
 *Part 2 - Can we diagnose schizophrenia from voice only?*
+
 1) Discuss whether you should you run the analysis on all studies and both languages at the same time
 You might want to support your results either by your own findings or by that of others
 2) Choose your best acoustic feature from part 1. How well can you diagnose schizophrenia just using it?
@@ -106,30 +109,25 @@ Tip: Load one file (as a sample) and:
 Only then (when everything works) turn the code into a function and use map_df() to apply it to all the files.
 See placeholder code here for help.
 
-```{r loading one pitch data file}
-Study1D0S101T1_f0 <- read.delim("Pitch/Study1D0S101T1_f0.txt")
-# it was not read correctly, see: delim
-
-#what columns do we want?
-
-
-
+```{r}
 library(tidyverse)
-# making a list of the filenames from the folder "Pitch"
-filenames_list <- list.files(path = "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch", pattern = "*.txt")
-path <- "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch/"
-DATA <- NULL    
 
-for(i in 1:length(filenames_list)){
-    d <- read.delim(paste0(path, filenames_list[i]))
-    d$ <- 
-    DATA <- rbind(DATA, d)
+#Creating a list with the names of our files as character strings
+pitch <- list.files(path="/Users/al/RStudio/Semester 3/Experimental-Methods-3/Assignment 3/EM3_A3_P1/Pitch/", pattern="*.txt")
+
+#Creating empty dataframe
+data <- NULL
+path <- "/Users/al/RStudio/Semester 3/Experimental-Methods-3/Assignment 3/EM3_A3_P1/Pitch/"
+
+#Run forloop that goes one by one and reads each file
+for (n in 1:length(pitch)) {
+    d <- read.delim(paste0(path, Pitch [n]))
+    data <- rbind(data, d)
 }
-    
 
 
-# this is the placehoolder code:
-#read_pitch <- function(filename) {
+#We can create an empty column which is a string character, and tell the loop that this equals to the filename
+read_pitch <- function("/Users/al/RStudio/Semester 3/Experimental-Methods-3/Assignment 3/EM3_A3_P1/Pitch/Study1D0S101T1_f0.txt") {
     # load data
     
     # parse filename to extract study, diagnosis, subject and trial
@@ -137,17 +135,19 @@ for(i in 1:length(filenames_list)){
     # extract pitch descriptors (mean, sd, iqr, etc)
     
     # combine all this data in one dataset
-#    return(data)
-#}
+    return(data)
+}
 
+read_pitch <- function()
 # test it on just one file while writing the function
-#test_data = read_pitch("Pitch/a_file_to_test.txt")
+test_data = read_pitch("Pitch/a_file_to_test.txt")
 
 # when you've created a function that works, you can
-#pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
-#    purrr::map_df(read_pitch)
+pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
+    purrr::map_df(read_pitch)
 
-#write_csv(pitch_data, ...)
+write_csv(pitch_data, ...)
+
 ```
 
 
@@ -169,11 +169,11 @@ for(i in 1:length(filenames_list)){
 ## Now we need to describe our sample
 
 First look at the missing data: we should exclude all recordings for which we do not have complete data.
-Then count the participants and recordings by diagnosis, report their gender, age and symptom severity (SANS, SAPS and Social)
+Then count the participants and recordinsgs by diagnosis, report their gender, age and symptom severity (SANS, SAPS and Social)
 Finally, do the same by diagnosis and study, to assess systematic differences in studies.
 I like to use group_by() %>% summarize() for quick summaries
 
-```{r Part 1.1 Describe your sample}
+```{r}
 
 ```
 
@@ -194,10 +194,6 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 
 - Bonus points: cross-validate the models and report the betas and standard errors from all rounds to get an idea of how robust the estimates are. 
 
-```{r Part 1.2 Describe the acoustic profile of a schizophrenic voice: which features are different?}
-
-```
-
 ```{r}
    set.seed(1)
    x <- runif(7)
@@ -208,35 +204,7 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
    scale(x)
 ```
 
-
-```{r Part 1.3 Discuss the analysis necessary to replicate the meta-analytic findings}
-
-```
 ## N.B. Remember to save the acoustic features of voice in a separate file, so to be able to load them next time
-
-
-
-# Part 2: Can we diagnose schizophrenia from voice only?
-```{r Part 2.1 Discuss whether you should you run the analysis on all studies and both languages at the same time}
-# my idea is that we should compare the SCZ group with the control group within the same language.
-# the reason for this is that there may be cultural differences. In some languages the differences could be bigger or smaller, 
-# or the features that differ are different from those in another language maybe.
-```
-
-
-```{r Part 2.2 Choose your best acoustic feature from part 1. How well can you diagnose schizophrenia just using it?}
-
-```
-
-
-```{r Part 2.3 Identify the best combination of acoustic features to diagnose schizophrenia using logistic regression.}
-
-```
-
-
-```{r Part 2.4 Discuss the "classification" process: which methods are you using? Which confounds should you be aware of? What are the strength and limitation of the analysis?}
-
-```
 
 
 ## Reminder of the report to write 

@@ -1,7 +1,7 @@
 ---
 title: "Assignment 3 - Part 1 - Voice In Schizophrenia"
-author: "Riccardo Fusaroli"
-date: "August 09, 2019"
+author: "Anne"
+date: "October 01, 2020"
 output: html_document
 ---
 
@@ -106,30 +106,13 @@ Tip: Load one file (as a sample) and:
 Only then (when everything works) turn the code into a function and use map_df() to apply it to all the files.
 See placeholder code here for help.
 
-```{r loading one pitch data file}
-Study1D0S101T1_f0 <- read.delim("Pitch/Study1D0S101T1_f0.txt")
-# it was not read correctly, see: delim
-
-#what columns do we want?
-
-
-
+```{r}
 library(tidyverse)
-# making a list of the filenames from the folder "Pitch"
-filenames_list <- list.files(path = "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch", pattern = "*.txt")
-path <- "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch/"
-DATA <- NULL    
-
-for(i in 1:length(filenames_list)){
-    d <- read.delim(paste0(path, filenames_list[i]))
-    d$ <- 
-    DATA <- rbind(DATA, d)
-}
-    
+```
 
 
-# this is the placehoolder code:
-#read_pitch <- function(filename) {
+```{r}
+read_pitch <- function(filename) {
     # load data
     
     # parse filename to extract study, diagnosis, subject and trial
@@ -137,17 +120,18 @@ for(i in 1:length(filenames_list)){
     # extract pitch descriptors (mean, sd, iqr, etc)
     
     # combine all this data in one dataset
-#    return(data)
-#}
+    return(data)
+}
 
 # test it on just one file while writing the function
-#test_data = read_pitch("Pitch/a_file_to_test.txt")
+test_data = read_pitch("Pitch/a_file_to_test.txt")
 
 # when you've created a function that works, you can
-#pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
-#    purrr::map_df(read_pitch)
+pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
+    purrr::map_df(read_pitch)
 
-#write_csv(pitch_data, ...)
+write_csv(pitch_data, ...)
+
 ```
 
 
@@ -169,11 +153,11 @@ for(i in 1:length(filenames_list)){
 ## Now we need to describe our sample
 
 First look at the missing data: we should exclude all recordings for which we do not have complete data.
-Then count the participants and recordings by diagnosis, report their gender, age and symptom severity (SANS, SAPS and Social)
+Then count the participants and recordinsgs by diagnosis, report their gender, age and symptom severity (SANS, SAPS and Social)
 Finally, do the same by diagnosis and study, to assess systematic differences in studies.
 I like to use group_by() %>% summarize() for quick summaries
 
-```{r Part 1.1 Describe your sample}
+```{r}
 
 ```
 
@@ -194,10 +178,6 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 
 - Bonus points: cross-validate the models and report the betas and standard errors from all rounds to get an idea of how robust the estimates are. 
 
-```{r Part 1.2 Describe the acoustic profile of a schizophrenic voice: which features are different?}
-
-```
-
 ```{r}
    set.seed(1)
    x <- runif(7)
@@ -208,35 +188,7 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
    scale(x)
 ```
 
-
-```{r Part 1.3 Discuss the analysis necessary to replicate the meta-analytic findings}
-
-```
 ## N.B. Remember to save the acoustic features of voice in a separate file, so to be able to load them next time
-
-
-
-# Part 2: Can we diagnose schizophrenia from voice only?
-```{r Part 2.1 Discuss whether you should you run the analysis on all studies and both languages at the same time}
-# my idea is that we should compare the SCZ group with the control group within the same language.
-# the reason for this is that there may be cultural differences. In some languages the differences could be bigger or smaller, 
-# or the features that differ are different from those in another language maybe.
-```
-
-
-```{r Part 2.2 Choose your best acoustic feature from part 1. How well can you diagnose schizophrenia just using it?}
-
-```
-
-
-```{r Part 2.3 Identify the best combination of acoustic features to diagnose schizophrenia using logistic regression.}
-
-```
-
-
-```{r Part 2.4 Discuss the "classification" process: which methods are you using? Which confounds should you be aware of? What are the strength and limitation of the analysis?}
-
-```
 
 
 ## Reminder of the report to write 
