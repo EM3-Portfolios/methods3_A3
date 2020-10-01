@@ -150,11 +150,11 @@ write_csv(pitch_data, ...)
 ## Now we need to describe our sample
 
 First look at the missing data: we should exclude all recordings for which we do not have complete data.
-Then count the participants and recordinsgs by diagnosis, report their gender, age and symptom severity (SANS, SAPS and Social)
+Then count the participants and recordings by diagnosis, report their gender, age and symptom severity (SANS, SAPS and Social)
 Finally, do the same by diagnosis and study, to assess systematic differences in studies.
 I like to use group_by() %>% summarize() for quick summaries
 
-```{r}
+```{r Part 1.1 Describe your sample}
 
 ```
 
@@ -175,6 +175,10 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 
 - Bonus points: cross-validate the models and report the betas and standard errors from all rounds to get an idea of how robust the estimates are. 
 
+```{r Part 1.2 2) Describe the acoustic profile of a schizophrenic voice: which features are different?}
+
+```
+
 ```{r}
    set.seed(1)
    x <- runif(7)
@@ -185,7 +189,33 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
    scale(x)
 ```
 
+
+```{r Part 1.3 Discuss the analysis necessary to replicate the meta-analytic findings}
+
+```
 ## N.B. Remember to save the acoustic features of voice in a separate file, so to be able to load them next time
+
+
+
+# Part 2: Can we diagnose schizophrenia from voice only?
+```{r Part 2.1 Discuss whether you should you run the analysis on all studies and both languages at the same time}
+
+```
+
+
+```{r Part 2.2 Choose your best acoustic feature from part 1. How well can you diagnose schizophrenia just using it?}
+
+```
+
+
+```{r Part 2.3 Identify the best combination of acoustic features to diagnose schizophrenia using logistic regression.}
+
+```
+
+
+```{r Part 2.4 Discuss the "classification" process: which methods are you using? Which confounds should you be aware of? What are the strength and limitation of the analysis?}
+
+```
 
 
 ## Reminder of the report to write 
