@@ -136,12 +136,16 @@ write_csv(pitch_data, ...)
 
 ```{r}
 # Let's start with the demographic and clinical data
+df_demo <- readr::read_csv("DemographicData.csv")
 
-# then duration data
+# then duration data (Articulation??)
+df_duration <- read.delim("Articulation.txt")
 
 # Finally the pitch data
+df_pitch <- readr::read_csv("pitch_data.csv")
 
 # Now we merge them
+
 
 # Now we save them
 
