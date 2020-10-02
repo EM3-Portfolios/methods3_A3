@@ -107,10 +107,16 @@ Only then (when everything works) turn the code into a function and use map_df()
 See placeholder code here for help.
 
 ```{r loading one pitch data file}
-Study1D0S101T1_f0 <- read.delim("Pitch/Study1D0S101T1_f0.txt")
+# Study1D0S101T1_f0 <- read.delim("Pitch/Study1D0S101T1_f0.txt")
 # it was not read correctly, see: delim
 
 #what columns do we want?
+# Study
+# SCZ/Diagnosis
+# Unique_ID <- SCZ + ID
+# Trial
+
+# use summarize from tidyverse to get means
 
 
 
@@ -122,43 +128,41 @@ DATA <- NULL
 
 for(i in 1:length(filenames_list)){
     d <- read.delim(paste0(path, filenames_list[i]))
-    d$ <- 
+    d$ID <- ""
+    d$ID <- str_extract(filenames_list[i], ".S...")
+    d$Trial <- ""
+    d$Trial <- str_extract(filenames_list[i], "T.")
     DATA <- rbind(DATA, d)
 }
     
-
-
-# this is the placehoolder code:
-#read_pitch <- function(filename) {
-    # load data
-    
-    # parse filename to extract study, diagnosis, subject and trial
-    
-    # extract pitch descriptors (mean, sd, iqr, etc)
-    
-    # combine all this data in one dataset
-#    return(data)
-#}
-
-# test it on just one file while writing the function
-#test_data = read_pitch("Pitch/a_file_to_test.txt")
-
-# when you've created a function that works, you can
-#pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
-#    purrr::map_df(read_pitch)
-
-#write_csv(pitch_data, ...)
 ```
 
 
 ### Now you need to merge demographic/clinical, duration and pitch data
 
 ```{r}
-# Let's start with the demographic and clinical data
+# we want the format of the ID to be 0/1 for diagnosis and then the ID so for example = 1101 for SCZ nr 101
+    # in DATA, S needs to be str_replace'd and removed.
+    # in DemographicData we need to extract the diagnosis in new column and make it binary and then make a column where they are put together
+    # in Articulation the ID needs to be extracted from the soundname like it was from filenames_list
 
-# then duration data
 
-# Finally the pitch data
+# Let's start with the demographic and clinical data        & make unique ID
+df_demo <- read_csv2("DemographicData.csv")
+    # making a diagnosis column of 1's and 0's
+df_demo$SCZ <- df_demo$Diagnosis
+df_demo$SCZ <- as.factor(df_demo$SCZ)
+df_demo$SCZ <- as.numeric(df_demo$SCZ) - 1
+    # making unique IDs
+df_demo$SCZ <- as.character(df_demo$SCZ)
+df_demo$Participant <- as.character(df_demo$Participant)
+df_demo$ID <- paste0(df_demo$SCZ, df_demo$Participant)
+
+# then duration data                                        & make unique ID
+df_duration <- read.delim("Articulation.txt", sep = ",")
+
+# Finally the pitch data                                    & edit unique ID
+
 
 # Now we merge them
 
