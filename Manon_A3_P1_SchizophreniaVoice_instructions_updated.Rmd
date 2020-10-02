@@ -160,13 +160,24 @@ df_demo$ID <- paste0(df_demo$SCZ, df_demo$Participant)
 
 # then duration data                                        & make unique ID
 df_duration <- read.delim("Articulation.txt", sep = ",")
+df_duration$ID <- str_extract(df_duration$soundname, ".S...")
+df_duration$ID <- str_replace_all(df_duration$ID, c("S" = ""))
 
 # Finally the pitch data                                    & edit unique ID
-
+DATA$ID <- str_replace_all(DATA$ID, c("S" = ""))
+DATA$Trial <- str_replace_all(DATA$Trial, c("T" = ""))
 
 # Now we merge them
+df <- merge(df_demo, df_duration, by = "ID")
+df <- merge(df, DATA, by = "ID")
 
 # Now we save them
+# write.csv(df, "SCZdf.csv")
+
+# Why do we get 17.4 million observations?
+# when theyre are 3826 participants (see: filenames_list) and 532 observation per participant (see: d)
+# then thouse should be 2.035.432 observations
+
 
 ```
 
