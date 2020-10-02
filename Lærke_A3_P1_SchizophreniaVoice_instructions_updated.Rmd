@@ -116,39 +116,8 @@ See placeholder code here for help.
 
 
 library(tidyverse)
-
-d <- read.delim("Study1D0S101T1_f0.txt")
-d <- as.data.frame(d)
-
-d_name <- "Study1D0S101T1_f0.txt"
-a <- stringr::str_extract(d, "[a-z]{1,5}")
-d["Language"] <- a
-
-read_pitch <- function(filename) {
-    # load data
-    
-    # parse filename to extract study, diagnosis, subject and trial
-    
-    # extract pitch descriptors (mean, sd, iqr, etc)
-    
-    # combine all this data in one dataset
-    return(data)
-}
-
-# test it on just one file while writing the function
-test_data = read_pitch("Pitch/a_file_to_test.txt")
-
-# when you've created a function that works, you can
-pitch_data = list.files(path = "Assignment3/data/Pitch/",pattern = ".txt") %>% ## NB replace with your path to the files
-    purrr::map_df(read_pitch)
-
-write_csv(pitch_data, ...)
-
-
-
-
-
 library(stringr)
+
 
 #use list files function. Create an object
 object <- c(1,2,3,4)
@@ -158,26 +127,18 @@ data_lists <- as.data.frame(NULL)
 
 for (file in 1:length(list)) {
     d <- read.delim(paste0(path, list[file]))
-    d$Language <- ""
-    d$Language <- str_extract(list[file], "\\d {6}")
+    d$ID <- ""
+    d$ID <- str_extract(list[file], ".S...")
+    d$trial <- ""
+    d$trial <- str_extract(list[file], "T.")
     data_lists <- rbind(data_lists, d)
 }
-    
 
+# Removing the S from the unique IDs and the Ts from trial:
+d$ID <- str_replace_all(d$ID, c("S" = ""))
+d$trial <- str_replace_all(d$trial, c("T" = ""))
 
-
-
-
-
-
-d <- read.delim("Study1D0S101T1_f0.txt")
-d <- as.data.frame(d)
-
-d_name <- "Study1D0S101T1_f0.txt"
-
-d$gfhe <- ""
-a <- stringr::str_extract(d, "[a-z]{1,5}")
-d["Language"] <- a
+write.csv(data_lists, "pitch_data.csv")
 ```
 
 
@@ -185,10 +146,17 @@ d["Language"] <- a
 
 ```{r}
 # Let's start with the demographic and clinical data
-df_demo <- readr::read_csv("DemographicData.csv")
+df_demo <- readr::read_csv2("DemographicData.csv")
+  # Preparing for merge (making a unique id column like the one in the ptch data):
+df_demo$scz <- df_demo$Diagnosis
+df_demo$scz <- str_replace_all(df_demo$scz, c("Control" = "0", "Schizophrenia" = "1"))
+  # Creating the unique ID by combining diagnosis (scz) and ID:
+df_demo$ID <- paste0(df_demo$scz, df_demo$Participant)
 
 # then duration data (Articulation??)
-df_duration <- read.delim("Articulation.txt")
+df_duration <- read.delim("Articulation.txt", sep = ",")
+df_duration$ID <- extract(df_duration$ID, ".S...")
+df_duration$ID <- str_replace_all(df_duration$ID, c("S" = ""))
 
 # Finally the pitch data
 df_pitch <- readr::read_csv("pitch_data.csv")
