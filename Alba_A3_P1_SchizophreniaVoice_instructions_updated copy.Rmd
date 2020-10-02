@@ -119,15 +119,22 @@ pitch <- list.files(path="/Users/al/RStudio/Semester 3/Experimental-Methods-3/As
 data <- NULL
 path <- "/Users/al/RStudio/Semester 3/Experimental-Methods-3/Assignment 3/EM3_A3_P1/Pitch/"
 
-#Run forloop that goes one by one and reads each file
+#Run forloop that goes one by one and reads each file and ads them to a single binded data frame called data
 for (n in 1:length(pitch)) {
     d <- read.delim(paste0(path, Pitch [n]))
-    data <- rbind(data, d)
+    #data <- rbind(data, d)
+    d$Language <- ""
+    d$Language <- str_extract(list[file], "Study.")
+    data_lists <- rbind(data_lists, d)
 }
 
+```
+
+
+```{r}
 
 #We can create an empty column which is a string character, and tell the loop that this equals to the filename
-read_pitch <- function("/Users/al/RStudio/Semester 3/Experimental-Methods-3/Assignment 3/EM3_A3_P1/Pitch/Study1D0S101T1_f0.txt") {
+read_pitch <- function(filename) {
     # load data
     
     # parse filename to extract study, diagnosis, subject and trial
