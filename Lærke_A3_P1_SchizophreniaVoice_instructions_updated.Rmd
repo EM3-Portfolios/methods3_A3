@@ -120,23 +120,23 @@ library(stringr)
 
 
 #use list files function. Create an object
-object <- c(1,2,3,4)
-list <- list.files(path = "Pitch/", pattern = "*.txt")
-path <- "Pitch/"
-data_lists <- as.data.frame(NULL)
+# object <- c(1,2,3,4)
+# list <- list.files(path = "Pitch/", pattern = "*.txt")
+# path <- "Pitch/"
+# data_lists <- as.data.frame(NULL)
 
-for (file in 1:length(list)) {
-    d <- read.delim(paste0(path, list[file]))
-    d$ID <- ""
-    d$ID <- str_extract(list[file], ".S...")
-    d$trial <- ""
-    d$trial <- str_extract(list[file], "T.")
-    d$trial <- str_extract(list[file], "T.")
-    d$Study <- str_extract(list[file], "Study.")
-    data_lists <- rbind(data_lists, d)
-}
+# for (file in 1:length(list)) {
+    #d <- read.delim(paste0(path, list[file]))
+    #d$ID <- ""
+    #d$ID <- str_extract(list[file], ".S...")
+    #d$trial <- ""
+    #d$trial <- str_extract(list[file], "T.")
+    #d$trial <- str_extract(list[file], "T.")
+    #d$Study <- str_extract(list[file], "Study.")
+    #data_lists <- rbind(data_lists, d)
+#}
 
-write.csv(data_lists, "pitch_data_raw.csv")
+#write.csv(data_lists, "pitch_data_raw.csv")
 df_pitch <- readr::read_csv("pitch_data_raw.csv")
 
 # Removing the S from the unique IDs and the Ts from trial:
@@ -164,16 +164,25 @@ df_demo$scz <- df_demo$Diagnosis
 df_demo$scz <- str_replace_all(df_demo$scz, c("Control" = "0", "Schizophrenia" = "1"))
   # Creating the unique ID by combining diagnosis (scz) and ID:
 df_demo$ID <- paste0(df_demo$scz, df_demo$Participant)
+  # Removing non-danish participants:
+df_demo <- filter(df_demo, Language == "Danish")
 
 # then duration data (Articulation??)
 df_duration <- read.delim("Articulation.txt", sep = ",")
+ # Making a column for study number:
+df_duration$Study <- str_extract(df_duration$soundname, "Study.")
+df_duration$Study <- str_replace_all(df_duration$Study, c("Study" = ""))
+df_duration$Study <- as.numeric(df_duration$Study)
+  # Removing non-danish participants:
+df_duration <- filter(df_duration, Study <= 4)
+ # Making ID column
 df_duration$soundname <- str_extract(df_duration$soundname, ".S...")
 df_duration$soundname <- str_replace_all(df_duration$soundname, c("S" = ""))
 df_duration <- dplyr::rename(df_duration, ID = soundname)
 
+
+
 # Finally the pitch data
-df_pitch <- readr::read_csv("pitch_data.csv")
-df_pitch$X1 <- NULL
 
 # combine the different information from multiple files into one meaningful dataset you can use for your analysis. This involves: extracting descriptors of acoustic features from each pitch file (e.g. mean/median, standard deviation / interquartile range), and combine them with duration and demographic/clinical files
 mean_f0 <- aggregate(df_pitch[, 2], list(df_pitch$ID), mean)
@@ -201,38 +210,33 @@ Finally, do the same by diagnosis and study, to assess systematic differences in
 I like to use group_by() %>% summarize() for quick summaries
 
 ```{r}
-# df <- readr::read_csv("SCZdf.csv")
+# We have two study columns from the merge:
+df <- dplyr::rename(df, Study = Study.x)
+df$Study.y <- NULL
 
 # Removing rows with NAs
 df <- na.omit(df, na.action = "omit", fill = NULL)
-# Removing this extra column
-df$X1 <- NULL
 
 # Grouping the participants by diagnosis:
-df <- group_by(df, Diagnosis)
+df <- group_by(df, Diagnosis) 
 
 # Describing the sample
 df %>% count(mean(Age, na.rm = TRUE), sort = TRUE)
 df %>% count(Gender, sort = TRUE)
-df %>% count(SANS, sort = TRUE)
-df %>% count(SAPS, sort = TRUE)
-df %>% count(Social, sort = TRUE)
+aggregate(df[, 9], list(df$Diagnosis), mean)
+aggregate(df[, 10], list(df$Diagnosis), mean)
+```
 
 
+```{r}
+# Grouping the participants by diagnosis:
+df <- group_by(df, Diagnosis, Study)
 
-plyr::ddply(df, c("Diagnosis"), summarise, mean=mean(Socialization, na.rm = TRUE))
-# https://stackoverflow.com/questions/23553407/calculating-mean-values-based-on-two-different-groupings-in-a-data-frame
-plyr::ddply(df, c("Diagnosis"), summarise, mean=mean(MullenRaw, na.rm = TRUE))
-plyr::ddply(df, c("Diagnosis"), summarise, mean=mean(ExpressiveLangRaw, na.rm = TRUE))
-
-
-ggplot(df, aes(x = Diagnosis, fill = Ethnicity))+
-  geom_bar() +
-  ggtitle("Plot 1.2 - Ethnic representation in the two diagnostic groups")
-
-ggplot(df, aes(x = Diagnosis, fill = Gender))+
-  geom_bar() +
-  ggtitle("Plot 1.1 - Gender representation in the two diagnostic groups")
+# Describing the sample
+df %>% count(mean(Age, na.rm = TRUE), sort = TRUE)
+df %>% count(Gender, sort = TRUE)
+aggregate(df[, 9], list(df$Diagnosis, df$Study), mean)
+aggregate(df[, 10], list(df$Diagnosis, df$Study), mean)
 ```
 
 ## Now we can analyze the data
