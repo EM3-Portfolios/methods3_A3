@@ -131,6 +131,8 @@ for (file in 1:length(list)) {
     d$ID <- str_extract(list[file], ".S...")
     d$trial <- ""
     d$trial <- str_extract(list[file], "T.")
+    d$trial <- str_extract(list[file], "T.")
+    d$Study <- str_extract(list[file], "Study.")
     data_lists <- rbind(data_lists, d)
 }
 
@@ -138,7 +140,9 @@ for (file in 1:length(list)) {
 d$ID <- str_replace_all(d$ID, c("S" = ""))
 d$trial <- str_replace_all(d$trial, c("T" = ""))
 
+
 write.csv(data_lists, "pitch_data.csv")
+
 ```
 
 
@@ -161,6 +165,13 @@ df_duration <- dplyr::rename(df_duration, ID = soundname)
 
 # Finally the pitch data
 df_pitch <- readr::read_csv("pitch_data.csv")
+df_pitch$X1 <- NULL
+
+# combine the different information from multiple files into one meaningful dataset you can use for your analysis. This involves: extracting descriptors of acoustic features from each pitch file (e.g. mean/median, standard deviation / interquartile range), and combine them with duration and demographic/clinical files
+mean_f0 <- aggregate(df_pitch[, 2], list(df_pitch$ID), mean)
+sd_f0 <- aggregate(df_pitch[, 2], list(df_pitch$ID), sd)
+df_pitch_aggregate <- merge(mean_f0, sd_f0, by = "Group.1") # Group.1 means ID
+
 
 # Now we merge them
 df <- merge(df_demo, df_duration, by = "ID")
@@ -178,12 +189,38 @@ Finally, do the same by diagnosis and study, to assess systematic differences in
 I like to use group_by() %>% summarize() for quick summaries
 
 ```{r}
-df <- readr::read_csv("SCZdf.csv")
+# df <- readr::read_csv("SCZdf.csv")
 
+# Removing rows with NAs
 df <- na.omit(df, na.action = "omit", fill = NULL)
+# Removing this extra column
 df$X1 <- NULL
 
+# Grouping the participants by diagnosis:
+df <- group_by(df, Diagnosis)
 
+# Describing the sample
+df %>% count(mean(Age, na.rm = TRUE), sort = TRUE)
+df %>% count(Gender, sort = TRUE)
+df %>% count(SANS, sort = TRUE)
+df %>% count(SAPS, sort = TRUE)
+df %>% count(Social, sort = TRUE)
+
+
+
+plyr::ddply(df, c("Diagnosis"), summarise, mean=mean(Socialization, na.rm = TRUE))
+# https://stackoverflow.com/questions/23553407/calculating-mean-values-based-on-two-different-groupings-in-a-data-frame
+plyr::ddply(df, c("Diagnosis"), summarise, mean=mean(MullenRaw, na.rm = TRUE))
+plyr::ddply(df, c("Diagnosis"), summarise, mean=mean(ExpressiveLangRaw, na.rm = TRUE))
+
+
+ggplot(df, aes(x = Diagnosis, fill = Ethnicity))+
+  geom_bar() +
+  ggtitle("Plot 1.2 - Ethnic representation in the two diagnostic groups")
+
+ggplot(df, aes(x = Diagnosis, fill = Gender))+
+  geom_bar() +
+  ggtitle("Plot 1.1 - Gender representation in the two diagnostic groups")
 ```
 
 ## Now we can analyze the data
