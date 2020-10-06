@@ -169,20 +169,32 @@ df_demo$SCZ <- as.character(df_demo$SCZ)
 df_demo$Participant <- as.character(df_demo$Participant)
 df_demo$ID <- paste0(df_demo$SCZ, df_demo$Participant)
 
+
 # then duration data                                        & make unique ID
 df_duration <- read.delim("Articulation.txt", sep = ",")
 df_duration$ID <- str_extract(df_duration$soundname, ".S...")
 df_duration$ID <- str_replace_all(df_duration$ID, c("S" = ""))
+df_duration$Study <- str_extract(df_duration$soundname, "Study.")
+df_duration$Study <- str_replace_all(df_duration$Study, c("Study" = ""))
+
 
 # Finally the pitch data                                    & edit unique ID
 DATA$ID <- str_replace_all(DATA$ID, c("S" = ""))
 DATA$ID <- str_replace_all(DATA$ID, c("T" = ""))
 DATA$trial <- str_replace_all(DATA$trial, c("T" = ""))
 
-# we selec to use only danish data
+
+# we select to use only danish data
 DATA$Study <- str_replace_all(DATA$Study, c("Study" = ""))
 DATA$Study <- as.numeric(DATA$Study)
 DATA <- filter(DATA, Study <= 4)
+
+df_duration$Study <- str_replace_all(df_duration$Study, c("Study" = ""))
+df_duration$Study <- as.numeric(df_duration$Study)
+df_duration <- filter(df_duration, Study <= 4)
+
+df_demo <- filter(df_demo, Language == "Danish")
+
 
 ## aggregating pitch data, so we have one row per ID with means, SD etc for each of the measures
 mean_f0 <- aggregate(DATA[, 2], list(DATA$ID), mean)
@@ -191,6 +203,7 @@ sd_f0 <- aggregate(DATA[, 2], list(DATA$ID), sd)
 sd_f0 <- dplyr::rename(sd_f0, sd_f0 = f0)
 df_pitch_aggregate <- merge(mean_f0, sd_f0, by = "Group.1") # Group.1 means ID
 df_pitch_aggregate <- dplyr::rename(df_pitch_aggregate, ID = Group.1)
+
 
 # Now we merge them
 df <- merge(df_demo, df_duration, by = "ID")
@@ -208,13 +221,9 @@ Finally, do the same by diagnosis and study, to assess systematic differences in
 I like to use group_by() %>% summarize() for quick summaries
 
 ```{r Part 1.1 Describe your sample}
-# sorter kineserne fra
-df <- filter(df, Study <= 4)
-
 # look at the participants:
 unique(df$Diagnosis)
 length(unique(df$ID)) # 221
-unique(df$SCZ)
 
 ```
 
