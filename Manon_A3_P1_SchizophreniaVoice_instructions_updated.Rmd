@@ -124,7 +124,8 @@ library(tidyverse)
 # making a list of the filenames from the folder "Pitch"
 filenames_list <- list.files(path = "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch", pattern = "*.txt")
 path <- "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch/"
-DATA <- NULL    
+DATA <- as.data.frame(NULL)  
+testnumber <- 0
 
 for(i in 1:length(filenames_list)){
     d <- read.delim(paste0(path, filenames_list[i]))
@@ -132,9 +133,19 @@ for(i in 1:length(filenames_list)){
     d$ID <- str_extract(filenames_list[i], ".S...")
     d$Trial <- ""
     d$Trial <- str_extract(filenames_list[i], "T.")
+    d$Study <- ""
+    d$Study <- str_extract(filenames_list[i], "Study.")
     DATA <- rbind(DATA, d)
+    testnumber <- testnumber + 1
+    print(testnumber)
 }
-    
+
+
+# or just load the data once the loop has been run:
+DATA <- read_csv("Pitch_data_raw.csv")
+DATA$X1 <- NULL
+
+
 ```
 
 
@@ -165,20 +176,28 @@ df_duration$ID <- str_replace_all(df_duration$ID, c("S" = ""))
 
 # Finally the pitch data                                    & edit unique ID
 DATA$ID <- str_replace_all(DATA$ID, c("S" = ""))
-DATA$Trial <- str_replace_all(DATA$Trial, c("T" = ""))
+DATA$ID <- str_replace_all(DATA$ID, c("T" = ""))
+DATA$trial <- str_replace_all(DATA$trial, c("T" = ""))
+
+# we selec to use only danish data
+DATA$Study <- str_replace_all(DATA$Study, c("Study" = ""))
+DATA$Study <- as.numeric(DATA$Study)
+DATA <- filter(DATA, Study <= 4)
+
+## aggregating pitch data, so we have one row per ID with means, SD etc for each of the measures
+mean_f0 <- aggregate(DATA[, 2], list(DATA$ID), mean)
+mean_f0 <- dplyr::rename(mean_f0, mean_f0 = f0)
+sd_f0 <- aggregate(DATA[, 2], list(DATA$ID), sd)
+sd_f0 <- dplyr::rename(sd_f0, sd_f0 = f0)
+df_pitch_aggregate <- merge(mean_f0, sd_f0, by = "Group.1") # Group.1 means ID
+df_pitch_aggregate <- dplyr::rename(df_pitch_aggregate, ID = Group.1)
 
 # Now we merge them
 df <- merge(df_demo, df_duration, by = "ID")
-df <- merge(df, DATA, by = "ID")
+df <- merge(df, df_pitch_aggregate, by = "ID")
 
 # Now we save them
 # write.csv(df, "SCZdf.csv")
-
-# Why do we get 17.4 million observations?
-# when theyre are 3826 participants (see: filenames_list) and 532 observation per participant (see: d)
-# then thouse should be 2.035.432 observations
-
-
 ```
 
 ## Now we need to describe our sample
@@ -189,6 +208,13 @@ Finally, do the same by diagnosis and study, to assess systematic differences in
 I like to use group_by() %>% summarize() for quick summaries
 
 ```{r Part 1.1 Describe your sample}
+# sorter kineserne fra
+df <- filter(df, Study <= 4)
+
+# look at the participants:
+unique(df$Diagnosis)
+length(unique(df$ID)) # 221
+unique(df$SCZ)
 
 ```
 
