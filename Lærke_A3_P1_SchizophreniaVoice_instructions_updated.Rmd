@@ -155,14 +155,16 @@ df_demo$ID <- paste0(df_demo$scz, df_demo$Participant)
 
 # then duration data (Articulation??)
 df_duration <- read.delim("Articulation.txt", sep = ",")
-df_duration$ID <- extract(df_duration$ID, ".S...")
-df_duration$ID <- str_replace_all(df_duration$ID, c("S" = ""))
+df_duration$soundname <- str_extract(df_duration$soundname, ".S...")
+df_duration$soundname <- str_replace_all(df_duration$soundname, c("S" = ""))
+df_duration <- dplyr::rename(df_duration, ID = soundname)
 
 # Finally the pitch data
 df_pitch <- readr::read_csv("pitch_data.csv")
 
 # Now we merge them
-
+df <- merge(df_demo, df_duration, by = "ID")
+df <- merge(df, df_pitch, by = "ID")
 
 # Now we save them
 
@@ -176,6 +178,11 @@ Finally, do the same by diagnosis and study, to assess systematic differences in
 I like to use group_by() %>% summarize() for quick summaries
 
 ```{r}
+df <- readr::read_csv("SCZdf.csv")
+
+df <- na.omit(df, na.action = "omit", fill = NULL)
+df$X1 <- NULL
+
 
 ```
 
