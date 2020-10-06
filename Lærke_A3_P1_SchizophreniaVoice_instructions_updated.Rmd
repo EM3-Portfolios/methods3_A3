@@ -136,12 +136,20 @@ for (file in 1:length(list)) {
     data_lists <- rbind(data_lists, d)
 }
 
+write.csv(data_lists, "pitch_data_raw.csv")
+df_pitch <- readr::read_csv("pitch_data_raw.csv")
+
 # Removing the S from the unique IDs and the Ts from trial:
-d$ID <- str_replace_all(d$ID, c("S" = ""))
-d$trial <- str_replace_all(d$trial, c("T" = ""))
+df_pitch$ID <- str_replace_all(df_pitch$ID, c("S" = ""))
+df_pitch$trial <- str_replace_all(df_pitch$trial, c("T" = ""))
+df_pitch$X1 <- NULL
+# Filtering only the danish studies
+df_pitch$Study <- str_replace_all(df_pitch$Study, c("Study" = ""))
+df_pitch$Study <- as.numeric(df_pitch$Study)
+df_pitch <- filter(df_pitch, Study <= 4)
 
 
-write.csv(data_lists, "pitch_data.csv")
+#write.csv(data_lists, "pitch_data.csv")
 
 ```
 
@@ -169,13 +177,17 @@ df_pitch$X1 <- NULL
 
 # combine the different information from multiple files into one meaningful dataset you can use for your analysis. This involves: extracting descriptors of acoustic features from each pitch file (e.g. mean/median, standard deviation / interquartile range), and combine them with duration and demographic/clinical files
 mean_f0 <- aggregate(df_pitch[, 2], list(df_pitch$ID), mean)
-sd_f0 <- aggregate(df_pitch[, 2], list(df_pitch$ID), sd)
-df_pitch_aggregate <- merge(mean_f0, sd_f0, by = "Group.1") # Group.1 means ID
+mean_f0 <- dplyr::rename(mean_f0, mean_f0 = f0)
 
+sd_f0 <- aggregate(df_pitch[, 2], list(df_pitch$ID), sd)
+sd_f0 <- dplyr::rename(sd_f0, sd_f0 = f0)
+
+df_pitch_aggregate <- merge(mean_f0, sd_f0, by = "Group.1") # Group.1 means ID
+df_pitch_aggregate <- dplyr::rename(df_pitch_aggregate, ID = Group.1)
 
 # Now we merge them
 df <- merge(df_demo, df_duration, by = "ID")
-df <- merge(df, df_pitch, by = "ID")
+df <- merge(df, df_pitch_aggregate, by = "ID")
 
 # Now we save them
 
