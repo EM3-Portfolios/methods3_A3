@@ -257,16 +257,67 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 - Bonus points: cross-validate the models and report the betas and standard errors from all rounds to get an idea of how robust the estimates are. 
 
 ```{r}
-   set.seed(1)
-   x <- runif(7)
+   # set.seed(1)
+   # x <- runif(7)
 
    # Manually scaling
-   (x - mean(x)) / sd(x)
-
-   scale(x)
+   # (x - mean(x)) / sd(x)
 ```
 
 ## N.B. Remember to save the acoustic features of voice in a separate file, so to be able to load them next time
+```{r}
+write.csv(df_pitch, "df_pitch.csv")
+```
+
+
+# Creating the models
+```{r creating missing variables}
+#pitch variability: This must be our sd_f0 (or scaled_sd_f0)
+
+# Proportion of spoken time:
+df$proportion_of_spoken_time <- df$phonationtime..s. / df$dur..s.
+
+# Speech rate: This variable already exists as: "speechrate..nsyl.dur."
+
+# Pause duration:
+df$pause_duration <- df$dur..s. - df$phonationtime..s.
+```
+
+
+
+```{r scaling the valiables}
+# Pitch varriability
+df$scaled_sd_f0 <- scale(df$sd_f0)
+
+# Proportion of spoken time:
+df$scaled_proportion_of_spoken_time <- scale(df$proportion_of_spoken_time)
+
+# Speech rate:
+df$scaled_speechrate..nsyll.dur. <- scale(df$speechrate..nsyll.dur.)
+
+# Pause duration:
+df$scaled_pause_duration <- scale(df$pause_duration)
+```
+
+#######
+
+# 2. Articulation.txt (https://www.dropbox.com/s/vuyol7b575xdkjm/Articulation.txt?dl=0). It contains, per each file, measures of duration:
+- soundname: the name of the recording file
+- nsyll: number of syllables automatically inferred from the audio
+- npause: number of pauses automatically inferred from the audio (absence of human voice longer than 200 milliseconds)
+- dur (s): duration of the full recording
+- phonationtime (s): duration of the recording where speech is present
+- speechrate (nsyll/dur): average number of syllables per second
+- articulation rate (nsyll / phonationtime): average number of syllables per spoken second
+- ASD (speakingtime/nsyll): average syllable duration
+
+# 3. One file per recording with the fundamental frequency of speech extracted every 10 milliseconds (excluding pauses): https://www.dropbox.com/sh/bfnzaf8xgxrv37u/AAD2k6SX4rJBHo7zzRML7cS9a?dl=0
+- time: the time at which fundamental frequency was sampled
+- f0: a measure of fundamental frequency, in Herz
+
+#######
+
+
 
 
 ## Reminder of the report to write 
