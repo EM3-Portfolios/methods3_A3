@@ -120,7 +120,7 @@ See placeholder code here for help.
 
 
 
-library(tidyverse, lme4)
+library(tidyverse, lme4, caret)
 # making a list of the filenames from the folder "Pitch"
 filenames_list <- list.files(path = "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch", pattern = "*.txt")
 path <- "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch/"
@@ -276,9 +276,12 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
     # pitch variability = sd_f0
     # proportion of spoken time = (phonationtime..s./dur..s.)
     # speech rate = speechrate..nsyll.dur.
-    # pause duration = (dur..s. - phonationtime..s.)
+    # pause duration = (dur..s. - phonationtime..s.) / npause
 df$proportion_of_spoken_time <- df$phonationtime..s. / df$dur..s.
-df$pause_duration <- df$dur..s. - df$phonationtime..s.
+
+df$npause <- as.numeric(plyr::revalue(as.character(df$npause), c("0" = "1")))
+df$pause_duration <- (df$dur..s. - df$phonationtime..s.) / df$npause # we need to make any npause values that are zero into 1 - we cant divide by 0
+
 
 # Scaling the four variables to match those of the meta analysis
 df$scaled_sd_f0 <- scale(df$sd_f0)
@@ -298,10 +301,41 @@ m_pauseDur <- lmer(scaled_pause_duration ~ Diagnosis + (1 | ID), df)
 summary(m_spokenTimeProp)
 summary(m_speechRate)
 summary(m_pauseDur)
-
-
-# ggplot(df, aes(x = , y = ))
 ```
+
+```{r bonus: cross-validation}
+vector_of_outcomes <- as.character(unique(df$ID))
+
+k <-  5
+folds <- caret::createFolds(vector_of_outcomes, k = k, list = TRUE, returnTrain = FALSE)
+trainRMSE_m4 <- rep(NA, k)
+testRMSE_m4 <- rep(NA, k)
+i <- 1
+
+for (fold in folds){
+  train <-subset(df, !(ID %in% fold))
+  test <- subset(df, ID %in% fold)
+  model <- lmer(scaled_pause_duration ~ Diagnosis + (1 | ID), df)
+  test$prediction <- predict(model, test, allow.new.levels = TRUE)
+  train$prediction <- fitted(model)
+  trainRMSE_m4[i] <- RMSE(train$scaled_pause_duration, fitted(model))
+  testRMSE_m4[i] <- RMSE(test$scaled_pause_duration, test$prediction)
+  i <- i + 1
+}
+
+trainRMSE_m4
+testRMSE_m4
+
+crossValidation <- data.frame(trainRMSE_m4, testRMSE_m4)
+crossValidation$m4_diff <- abs(crossValidation$trainRMSE_m4 - crossValidation$testRMSE_m4)
+mean(crossValidation$m4_diff)
+```
+
+
+```{r Part 1.2 again - Describe the acoustic profile of a schizophrenic voice: which features are different?}
+ggplot()
+```
+
 
 
 ```{r Part 1.3 Discuss the analysis necessary to replicate the meta-analytic findings}
