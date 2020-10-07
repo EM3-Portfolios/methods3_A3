@@ -120,7 +120,7 @@ See placeholder code here for help.
 
 
 
-library(tidyverse)
+library(tidyverse, lme4)
 # making a list of the filenames from the folder "Pitch"
 filenames_list <- list.files(path = "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch", pattern = "*.txt")
 path <- "/Users/manon/Desktop/3. Semester/Experimental Methods 3/EM3 portfolio 3/methods3_A3/Pitch/"
@@ -286,7 +286,21 @@ df$scaled_proportion_of_spoken_time <- scale(df$proportion_of_spoken_time)
 df$scaled_speechrate..nsyll.dur. <- scale(df$speechrate..nsyll.dur.)
 df$scaled_pause_duration <- scale(df$pause_duration)
 
+# creating the models
 
+# we don't have different languages so it makes no sense to use study as a predictor
+# must have diagnosis as main effect and ID as random, 
+m_pitchVar <- lmer(scaled_sd_f0 ~ Diagnosis + (1 | ID), df) # this one fails: Downdated VtV is not positive definite
+m_spokenTimeProp <- lmer(scaled_proportion_of_spoken_time ~ Diagnosis + (1 | ID), df)
+m_speechRate <- lmer(scaled_speechrate..nsyll.dur. ~ Diagnosis + (1 | ID), df)
+m_pauseDur <- lmer(scaled_pause_duration ~ Diagnosis + (1 | ID), df)
+
+summary(m_spokenTimeProp)
+summary(m_speechRate)
+summary(m_pauseDur)
+
+
+# ggplot(df, aes(x = , y = ))
 ```
 
 
@@ -297,7 +311,7 @@ df$scaled_pause_duration <- scale(df$pause_duration)
 
 
 
-# Part 2: Can we diagnose schizophrenia from voice only?
+# Part 2: Can we diagnose schizophrenia from voice only?      We don't have to do that before pf 3 p 2 :-)
 ```{r Part 2.1 Discuss whether you should you run the analysis on all studies and both languages at the same time}
 # my idea is that we should compare the SCZ group with the control group within the same language.
 # the reason for this is that there may be cultural differences. In some languages the differences could be bigger or smaller, 
