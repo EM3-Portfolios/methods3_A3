@@ -221,9 +221,36 @@ Finally, do the same by diagnosis and study, to assess systematic differences in
 I like to use group_by() %>% summarize() for quick summaries
 
 ```{r Part 1.1 Describe your sample}
+# excluding recordings for which we do not have complete data
+df <- na.omit(df, na.action = "omit", fill = NULL)
+df$Study.y <- NULL
+df <- dplyr::rename(df, Study = Study.x)
+
 # look at the participants:
 unique(df$Diagnosis)
 length(unique(df$ID)) # 221
+
+# Gender
+df <- group_by(df, Diagnosis)
+df %>% count(Gender, sort = TRUE)
+# Age - the groups are matched in mean age, with amean age of 23
+aggregate(df[, 7], list(df$Diagnosis), mean, na.rm = TRUE)
+# Education - the SCZ and control groups are not matched, with controls having higher education
+aggregate(df[, 8], list(df$Diagnosis), mean, na.rm = TRUE)
+# SANS -  for obvious reasons not matched
+aggregate(df[, 9], list(df$Diagnosis), mean, na.rm = TRUE)
+# SAPS -  for obvious reasons not matched
+aggregate(df[, 10], list(df$Diagnosis), mean, na.rm = TRUE)
+# VerbalIQ
+# NonVerbalIQ
+# TotalIQ
+
+
+
+group_by(df, Study) %>% summarize(Age)
+
+df %>% count(Study, sort = TRUE)
+unique(df$Study)
 
 ```
 
@@ -245,17 +272,21 @@ N.N.N.B. If you want to estimate the studies separately, you can try this syntax
 - Bonus points: cross-validate the models and report the betas and standard errors from all rounds to get an idea of how robust the estimates are. 
 
 ```{r Part 1.2 Describe the acoustic profile of a schizophrenic voice: which features are different?}
+# We start by making sure we have the same varibales that are used in the meta analysis:
+    # pitch variability = sd_f0
+    # proportion of spoken time = (phonationtime..s./dur..s.)
+    # speech rate = speechrate..nsyll.dur.
+    # pause duration = (dur..s. - phonationtime..s.)
+df$proportion_of_spoken_time <- df$phonationtime..s. / df$dur..s.
+df$pause_duration <- df$dur..s. - df$phonationtime..s.
 
-```
+# Scaling the four variables to match those of the meta analysis
+df$scaled_sd_f0 <- scale(df$sd_f0)
+df$scaled_proportion_of_spoken_time <- scale(df$proportion_of_spoken_time)
+df$scaled_speechrate..nsyll.dur. <- scale(df$speechrate..nsyll.dur.)
+df$scaled_pause_duration <- scale(df$pause_duration)
 
-```{r}
-   set.seed(1)
-   x <- runif(7)
 
-   # Manually scaling
-   (x - mean(x)) / sd(x)
-
-   scale(x)
 ```
 
 
