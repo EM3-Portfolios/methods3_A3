@@ -297,31 +297,55 @@ df$scaled_speechrate..nsyll.dur. <- scale(df$speechrate..nsyll.dur.)
 
 # Pause duration:
 df$scaled_pause_duration <- scale(df$pause_duration)
+
 ```
 
 
 
 ```{r creating the 4 models}
 # We will not be using "study" as a predictor, since we are only looking at the danish studies in the first place.
-
 pacman::p_load(lme4)
 
-# Pitch variability:
-m_pitchVar <- lmer(scaled_sd_f0 ~ Diagnosis + (1 | ID), df) # Error: Downdated VtV is not positive definite
 
-   #  df$scaled_sd_f0_abs <- abs(df$scaled_sd_f0)
-   #  m_pitchVar <- lmer(scaled_sd_f0_abs ~ Diagnosis + (1 | ID), df)  # Model failed to converge with max|grad| = 0.093876 (tol = 0.002, component 1)Model is nearly unidentifiable: very large eigenvalue - Rescale variables?
+# Pitch variability:
+m_pitchVar <- lm(scaled_sd_f0 ~ Diagnosis, df) # Error: Downdated VtV is not positive definite
+m_pitchVar <- lmer(scaled_sd_f0 ~ Diagnosis + (1 | ID), df)
+
+
 
 
 # Proportion of spoken time:
 m_spokenTimeProp <- lmer(scaled_proportion_of_spoken_time ~ Diagnosis + (1 | ID), df)
 
+summary(m_spokenTimeProp) 
+confint(m_spokenTimeProp, level = 0.95)
+# g:           -1.26, 95% CIs: -2.26, 0.25
+# effect size: -0.06, 95% CIs: -0.32, 0.20
+
+# The Hedge's G for proportion of spoken time is -1.26 (95%, CIs: -2.26, 0.25), and in our model we get an effect size estimate of -0.06 (95%, CIs: -0.32, 0.20). Both of these numbers are negative, indicating that the proportion of spoken time is smaller for schizophrenics than for the control group. However, in our data, the effect size is only slightly below 0, so the difference between the groups is not as big in our data.
+
+
+
+
 # Speech rate:
 m_speechRate <- lmer(scaled_speechrate..nsyll.dur. ~ Diagnosis + (1 | ID), df)
+
+summary(m_speechRate) 
+confint(m_speechRate, level = 0.95)
+# g:           -0.75, 95% CIs: -1.51, 0.04
+# effect size: -0.19, 95% CIs: -0.45, 0.06
+
+# The Hedge's G for speech rate is -1.26 (95%, CIs: -2.26, 0.25), and in our model we get an effect size estimate of -0.06 (95%, CIs: -0.32, 0.20). Both of these numbers are negative, indicating that the proportion of spoken time is smaller for schizophrenics than for the control group. However, in our data, the effect size is only slightly below 0, so the difference between the groups is not as big in our data.
+
+
 
 # Pause duration:
 m_pauseDur <- lmer(scaled_pause_duration ~ Diagnosis + (1 | ID), df)
 
+summary(m_pauseDur) 
+confint(m_pauseDur, level = 0.95)
+#           g:  1.89, 95% CIs:  0.72, 3.21
+# effect size: -0.02, 95% CIs: -0.21, 0.17
 ```
 
 
